@@ -1,0 +1,70 @@
+#include "robot-config.h"
+          
+    /*------------------------------------------------------------------------------------
+    
+    Robot Configuration:
+    [Smart Port]    [Name]        [Type]           [Description]       [Reversed]
+    Motor Port 1    MotorTLeft    V5 Smart Motor   Left side motor     false
+    Motor Port 2    MotorBLeft    V5 Smart Motor   Left side motor     true
+    Motor Port 3    MotorTRight   V5 Smart Motor   Right side motor    false
+    Motor Port 4    MotorBRight   V5 Smart Motor   Right side motor    false
+    
+    Motor Port 5    MotorClaw     V5 Smart Motor   Motor for the claw  false
+    Motor Port 6    MotorClawTilt V5 Smart Motor   Tilts the claw      true
+    
+    Motor Port 7    ArmMotor      V5 Smart Motor   Moves the arm       false
+  
+    ------------------------------------------------------------------------------------*/
+
+int main() {
+
+    //Display that the program has started to the screen.
+    Brain.Screen.print("Tank Control Program Started");
+    
+    //Use these variables to set the speed of the arm and claw.
+    int armSpeedPCT = 50;
+    int clawSpeedPCT = 50;
+    
+    //Create an infinite loop so that the program can pull remote control values every iteration.
+    //This loop causes the program to run forever.
+    while(true == true) {
+        
+        //Drive Control
+        //Set the left and right motor to spin forward using the controller Axis values as the velocity value.
+        MotorTLeft.spin(vex::directionType::fwd, Controller1.Axis3.value(), vex::velocityUnits::pct);
+        MotorBLeft.spin(vex::directionType::fwd, Controller1.Axis3.value(), vex::velocityUnits::pct);
+        MotorTRight.spin(vex::directionType::fwd, Controller1.Axis2.value(), vex::velocityUnits::pct);
+        MotorBRight.spin(vex::directionType::fwd, Controller1.Axis2.value(), vex::velocityUnits::pct);  
+        
+        //Arm Control
+        if(Controller1.ButtonUp.pressing()) { //If button up is pressed...
+            //...Spin the arm motor forward.
+            ArmMotor.spin(vex::directionType::fwd, armSpeedPCT, vex::velocityUnits::pct);
+        }
+        else if(Controller1.ButtonDown.pressing()) {//If the down button is pressed...
+            //...Spin the arm motor backward.
+            ArmMotor.spin(vex::directionType::rev, armSpeedPCT, vex::velocityUnits::pct);
+        }
+        else { //If the the up or down button is not pressed...
+            ///...Stop the arm motor.
+            ArmMotor.stop(vex::brakeType::brake);
+        }
+        
+        //Claw Control
+        if(Controller1.ButtonA.pressing()) { //If the A button is pressed...
+            //...Spin the claw motor forward.
+            MotorClaw.spin(vex::directionType::fwd, clawSpeedPCT, vex::velocityUnits::pct);
+        }
+        else if(Controller1.ButtonY.pressing()) { //If the Y button is pressed...
+            //...Spin the claw motor backward.
+            MotorClawTilt.spin(vex::directionType::rev, clawSpeedPCT, vex::velocityUnits::pct);
+        }
+        else { //If the A or Y button are not pressed...
+            //...Stop the claw motor. 
+            MotorClaw.stop(vex::brakeType::brake);       
+        }
+        
+		vex::task::sleep(20); //Sleep the task for a short amount of time to prevent wasted resources.
+    }
+
+}
